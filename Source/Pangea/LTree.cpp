@@ -12,8 +12,7 @@ void ALTree::UpdateLString()
 		// if any value changed
 		if (ValidateRules(Rules))
 		{
-			proceduralMeshComponent->ClearAllMeshSections();
-			sections = 0;
+			ClearMesh();
 
 			// if the rules are valid
 			FString result = lSystem.GetLString(Iterations, Rules);

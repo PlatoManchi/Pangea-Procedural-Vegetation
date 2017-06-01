@@ -196,7 +196,24 @@ void AProceduralMeshActor::Finish()
 	for (auto& element : vertexMap)
 	{
 		int32 Section = element.Key;
-
+		
 		proceduralMeshComponent->CreateMeshSection_LinearColor(Section, vertexMap[Section], indexMap[Section], normalMap[Section], uvMap[Section], vertexColorMap[Section], tangentsMap[Section], false);
 	}
+}
+
+void AProceduralMeshActor::ClearMesh()
+{
+	proceduralMeshComponent->ClearAllMeshSections();
+	for (auto& element : vertexMap)
+	{
+		int32 Section = element.Key;
+
+		vertexMap[Section].Empty();
+		indexMap[Section].Empty();
+		normalMap[Section].Empty();
+		uvMap[Section].Empty();
+		vertexColorMap[Section].Empty();
+		tangentsMap[Section].Empty();
+	}
+	sections = 0;
 }

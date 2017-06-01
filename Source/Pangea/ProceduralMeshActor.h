@@ -67,7 +67,15 @@ protected:
 	*/
 	void DrawLine(FVector StartLocation, FVector EndLocation, float Radius, int32 Section = 0);
 
+	/**
+		This has to be called for the mesh to get updated.
+	*/
 	void Finish();
+
+	/**
+		Remove all previous data from current mesh
+	*/
+	void ClearMesh();
 private:
 	LSystem lSystem;
 
