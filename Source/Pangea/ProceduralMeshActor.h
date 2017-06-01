@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "ProceduralMeshComponent.h"
+#include "LSystem/LSystem.h"
 #include "ProceduralMeshActor.generated.h"
 
 UCLASS()
@@ -18,6 +19,9 @@ public:
 	*/
 	UPROPERTY(VisibleAnywhere, Category = "GeneratedMesh")
 	UProceduralMeshComponent* proceduralMeshComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GeneratedMesh")
+	UMaterialInterface* LineMaterial;
 
 	/**
 		The edge count for the cylinder that is used to draw the line.
@@ -40,6 +44,7 @@ public:
 	// Sets default values for this actor's properties
 	AProceduralMeshActor();
 
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -48,8 +53,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	
-private:
-	int sections;
+protected:
+	int32 sections;
+
 	/**
 		Generate the mesh with vertex and index buffer provided.
 	*/
@@ -64,4 +70,7 @@ private:
 	*/
 	void DrawLine(FVector StartLocation, FVector EndLocation, float Radius);
 
+private:
+	LSystem lSystem;
+	
 };

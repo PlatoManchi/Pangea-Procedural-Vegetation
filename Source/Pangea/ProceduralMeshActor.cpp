@@ -10,14 +10,14 @@ AProceduralMeshActor::AProceduralMeshActor() : sections(0)
 	PrimaryActorTick.bCanEverTick = true;
 	
 	proceduralMeshComponent = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("GeneratedMesh"));
-	
-	DrawLine(FVector(0, 0, 0), FVector(200, 200, 200), 5);
+	RootComponent = proceduralMeshComponent;
 }
 
 // Called when the game starts or when spawned
 void AProceduralMeshActor::BeginPlay()
 {
 	Super::BeginPlay();
+	
 	
 }
 
@@ -35,8 +35,6 @@ void AProceduralMeshActor::GenerateMesh()
 
 void AProceduralMeshActor::DrawLine(FVector StartLocation, FVector EndLocation, float Radius)
 {
-	sections++;
-	UE_LOG(LogTemp, Warning, TEXT("DrawLine"));
 	FVector direction = EndLocation - StartLocation;
 	direction.Normalize();
 	FVector perpendicularVector = direction.RightVector;
@@ -149,6 +147,7 @@ void AProceduralMeshActor::DrawLine(FVector StartLocation, FVector EndLocation, 
 			
 		}
 	}
-
+	
 	proceduralMeshComponent->CreateMeshSection_LinearColor(sections, vertices, indices, normals, UV0, vertexColors, tangents, false);
+	sections++;
 }
