@@ -65,9 +65,16 @@ protected:
 		@param EndLocation FVector that holds the end location.
 		@param Radius Float that holds the radius.
 	*/
-	void DrawLine(FVector StartLocation, FVector EndLocation, float Radius);
+	void DrawLine(FVector StartLocation, FVector EndLocation, float Radius, int32 Section = 0);
 
+	void Finish();
 private:
 	LSystem lSystem;
-	
+
+	TMap<int32, TArray<FVector>> vertexMap;
+	TMap<int32, TArray<int32>> indexMap;
+	TMap<int32, TArray<FVector>> normalMap;
+	TMap<int32, TArray<FVector2D>> uvMap;
+	TMap<int32, TArray<FLinearColor>> vertexColorMap;
+	TMap<int32, TArray<FProcMeshTangent>> tangentsMap;
 };

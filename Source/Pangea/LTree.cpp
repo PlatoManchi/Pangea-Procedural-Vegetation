@@ -24,12 +24,14 @@ void ALTree::UpdateLString()
 			{
 				const LLine& line = quad->GetLine(i);
 				// draw each line in quad
-				DrawLine(line.Start, line.End, 5);
+				DrawLine(line.Start, line.End, 5, i % 2);
 			}
 			
 			SectionsCount = quad->LineCount();
 			delete quad;
 		}
+
+		Finish();
 
 		prevIterations = Iterations;
 		prevAngle = Angle;

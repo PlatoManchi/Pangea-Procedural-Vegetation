@@ -4,7 +4,7 @@
 
 
 // Sets default values
-AProceduralMeshActor::AProceduralMeshActor() : sections(0)
+AProceduralMeshActor::AProceduralMeshActor() : sections(2)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -33,23 +33,65 @@ void AProceduralMeshActor::GenerateMesh()
 	
 }
 
-void AProceduralMeshActor::DrawLine(FVector StartLocation, FVector EndLocation, float Radius)
+void AProceduralMeshActor::DrawLine(FVector StartLocation, FVector EndLocation, float Radius, int32 Section)
 {
+	// Populating the maps
+	if (!vertexMap.Contains(Section))
+	{
+		TArray<FVector> vertexData;
+		vertexMap.Add(Section, vertexData);
+	}
+
+	if (!indexMap.Contains(Section))
+	{
+		TArray<int32> indexData;
+		indexMap.Add(Section, indexData);
+	}
+
+	if (!normalMap.Contains(Section))
+	{
+		TArray<FVector> normalData;
+		normalMap.Add(Section, normalData);
+	}
+
+	if (!uvMap.Contains(Section))
+	{
+		TArray<FVector2D> uvData;
+		uvMap.Add(Section, uvData);
+	}
+
+	if (!vertexColorMap.Contains(Section))
+	{
+		TArray<FLinearColor> vertexColorData;
+		vertexColorMap.Add(Section, vertexColorData);
+	}
+
+	if (!tangentsMap.Contains(Section))
+	{
+		TArray<FProcMeshTangent> tangentData;
+		tangentsMap.Add(Section, tangentData);
+	}
+
+	// getting the array
+	TArray<FVector>& vertices = vertexMap[Section];
+	TArray<int32>& indices = indexMap[Section];
+	TArray<FVector>& normals = normalMap[Section];
+	TArray<FVector2D>& UV0 = uvMap[Section];
+	TArray<FLinearColor>& vertexColors = vertexColorMap[Section];
+	TArray<FProcMeshTangent>& tangents = tangentsMap[Section];
+
+
 	FVector direction = EndLocation - StartLocation;
 	direction.Normalize();
 	FVector perpendicularVector = direction.RightVector;
 
-	TArray<FVector> vertices;
-	TArray<int32> indices;
-	TArray<FVector> normals;
-	TArray<FVector2D> UV0;
-	TArray<FLinearColor> vertexColors;
-	TArray<FProcMeshTangent> tangents;
-
 	float angle = 0.0f;
 	float angleStep = 360.0f / edgeCount;
 
-	// top
+	// top of cylinder
+	int32 offsetVertexCount = vertices.Num();
+	int32 topStarting = offsetVertexCount;
+
 	vertices.Add(EndLocation);
 	UV0.Add(FVector2D(0.5, 0.5));
 	for (int32 i = 0; i < edgeCount; ++i)
@@ -65,16 +107,16 @@ void AProceduralMeshActor::DrawLine(FVector StartLocation, FVector EndLocation, 
 
 		if (i != edgeCount - 1)
 		{
-			indices.Add(0);
+			indices.Add(offsetVertexCount);
 			
-			indices.Add(i + 2);
-			indices.Add(i + 1);
+			indices.Add(offsetVertexCount + i + 2);
+			indices.Add(offsetVertexCount + i + 1);
 		}
 		else
 		{
-			indices.Add(0);
-			indices.Add(1);
-			indices.Add(i + 1);
+			indices.Add(offsetVertexCount);
+			indices.Add(offsetVertexCount + 1);
+			indices.Add(offsetVertexCount + i + 1);
 			
 		}
 		UV0.Add(FVector2D(sinValue / 2.0f + 0.5f, cosValue / 2.0f + 0.5f));
@@ -82,8 +124,8 @@ void AProceduralMeshActor::DrawLine(FVector StartLocation, FVector EndLocation, 
 		tangents.Add(FProcMeshTangent(0, 1, 0));
 	}
 
-	// bottom
-	int32 offsetVertexCount = vertices.Num();
+	// bottom of cylinder
+	offsetVertexCount = vertices.Num();
 	vertices.Add(StartLocation);
 	UV0.Add(FVector2D(0.5, 0.5));
 
@@ -117,9 +159,9 @@ void AProceduralMeshActor::DrawLine(FVector StartLocation, FVector EndLocation, 
 	}
 
 
-	// edges
-	int32 top = 1;
-	int32 bottom = edgeCount + 2;
+	// sides of cylinder
+	int32 top = topStarting + 1;
+	int32 bottom = topStarting + edgeCount + 2;
 	for (int32 i = 0; i < edgeCount; ++i)
 	{
 		if (i != edgeCount - 1)
@@ -147,7 +189,14 @@ void AProceduralMeshActor::DrawLine(FVector StartLocation, FVector EndLocation, 
 			
 		}
 	}
-	
-	proceduralMeshComponent->CreateMeshSection_LinearColor(sections, vertices, indices, normals, UV0, vertexColors, tangents, false);
-	sections++;
+}
+
+void AProceduralMeshActor::Finish()
+{
+	for (auto& element : vertexMap)
+	{
+		int32 Section = element.Key;
+
+		proceduralMeshComponent->CreateMeshSection_LinearColor(Section, vertexMap[Section], indexMap[Section], normalMap[Section], uvMap[Section], vertexColorMap[Section], tangentsMap[Section], false);
+	}
 }
