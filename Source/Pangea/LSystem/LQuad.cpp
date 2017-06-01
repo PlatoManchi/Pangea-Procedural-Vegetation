@@ -16,9 +16,9 @@ LQuad::~LQuad()
 	LineList.Empty();
 }
 
-void LQuad::AddLine(const LLine& pLine)
+void LQuad::AddLine(const LLine* pLine)
 {
-	LineList.Add(&pLine);
+	LineList.Add(pLine);
 }
 
 const LLine& LQuad::GetLine(uint32 pIndex) const

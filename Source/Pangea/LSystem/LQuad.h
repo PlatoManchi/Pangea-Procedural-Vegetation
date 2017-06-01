@@ -24,7 +24,7 @@ public:
 		Adds the line into this quad. The Quad will take owner ship of line.
 		@param pLine A constant reference to heap allocated LLine object.
 	*/
-	void AddLine(const LLine& pLine);
+	void AddLine(const LLine* pLine);
 
 	/**
 		Return line at an index;

@@ -77,57 +77,103 @@ FString LSystem::GetLString(uint32 Iterations, const TArray<FString>& Rules)
 //                0      sin(angle)    cos(angle)
 LQuad* LSystem::GenerateQuad(FString pLString, float pAngle, float pLineLength)
 {
+	// quad output 
 	LQuad* quad = new LQuad();
 
+	// initial direction. 
 	FVector unitDirectionVector = FVector::UpVector;
-	LLine currentLine = LLine(FVector::ZeroVector, FVector::ZeroVector);
+	
+	// first line
+	LLine* currentLine = new LLine(FVector::ZeroVector, FVector::ZeroVector);
+	quad->AddLine(currentLine);
 
+	// temp data used to 
+	LLine* tmpLine = new LLine(FVector::ZeroVector, FVector::ZeroVector);
+	TArray<LLine*> toDelete;
+	
+	// this will have the last position of the turtle
+	FVector lastKnownTurtlePosition = FVector::ZeroVector;
+	
+	// looping through all the operations
 	for (int32 i = 0; i < pLString.Len(); ++i)
 	{
 		char operation = pLString[i];
+
 		//UE_LOG(LogTemp, Warning, TEXT("Operation: %c"), operation);
 		switch (operation)
 		{
 		case 'F': {
-				FVector start = currentLine.End;
-				FVector end = start + unitDirectionVector * pLineLength;
-				LLine* tmpLine = new LLine(start, end);
-				
-				currentLine = *tmpLine;
+				// batching the lines improve performance alot.
+				FVector direction = currentLine->End - currentLine->Start;
+				direction.Normalize();
 
-				quad->AddLine(*tmpLine);
+				if (!unitDirectionVector.Equals(direction))
+				{
+					// create new line only if the direction of the previous line is not same as current line.
+					currentLine = new LLine(lastKnownTurtlePosition, lastKnownTurtlePosition);
+					quad->AddLine(currentLine);
+						
+				}
+				
+				currentLine->End = currentLine->End + unitDirectionVector * pLineLength;
+				lastKnownTurtlePosition = currentLine->End;
 			}
 			break;
 		case 'f': {
-				FVector start = currentLine.End;
-				FVector end = start + unitDirectionVector * pLineLength;
-				LLine tmpLine(start, end);
+				// batching the lines improve performance alot.
+				FVector direction = currentLine->End - currentLine->Start;
+				direction.Normalize();
+				if (!unitDirectionVector.Equals(direction))
+				{
+					currentLine = new LLine(lastKnownTurtlePosition, lastKnownTurtlePosition);
+					toDelete.Add(currentLine);
+				}
+				tmpLine->Start = currentLine->End;
+				tmpLine->End = tmpLine->Start + unitDirectionVector * pLineLength;
+				
+				currentLine->Start = tmpLine->Start;
+				currentLine->End = tmpLine->End;
 
-				currentLine = tmpLine;
+				lastKnownTurtlePosition = currentLine->End;
 			}
 			break;
 		case '+': {
+				// rotating direction on Y-Axis
 				unitDirectionVector = unitDirectionVector.RotateAngleAxis(pAngle, FVector(0, 1, 0));
+				lastKnownTurtlePosition = currentLine->End;
 			}
 			break;
 		case '-': {
+				// rotating direction on Y-Axis
 				unitDirectionVector = unitDirectionVector.RotateAngleAxis(-pAngle, FVector(0, 1, 0));
+				lastKnownTurtlePosition = currentLine->End;
 			}
 			break;
 		case '[':
 			{
+				// push current line and direction vector on to stack.
+				lastKnownTurtlePosition = currentLine->End;
 				LineStack.Push(LLineBranch(currentLine, unitDirectionVector));
 			}
 			break;
 		case ']':
 			{
+				// pop the line from line branching stack.
 				LLineBranch branch = LineStack.Pop();
 				currentLine = branch.Line;
 
 				unitDirectionVector = branch.DirectionAtBranching;
+				lastKnownTurtlePosition = currentLine->End;
 			}
 			break;
 		}
+	}
+
+	// freeing memory used
+	delete tmpLine;
+	for (LLine* var : toDelete)
+	{
+		delete var;
 	}
 
 	return quad;

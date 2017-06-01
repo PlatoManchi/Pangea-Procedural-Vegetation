@@ -20,9 +20,6 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "GeneratedMesh")
 	UProceduralMeshComponent* proceduralMeshComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GeneratedMesh")
-	UMaterialInterface* LineMaterial;
-
 	/**
 		The edge count for the cylinder that is used to draw the line.
 	*/

@@ -2,7 +2,7 @@
 
 #include "LLineBranch.h"
 
-LLineBranch::LLineBranch(LLine pLine, FVector pDirection) :
+LLineBranch::LLineBranch(LLine* pLine, FVector pDirection) :
 	Line(pLine), DirectionAtBranching(pDirection)
 {
 }

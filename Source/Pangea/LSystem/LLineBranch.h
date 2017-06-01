@@ -13,7 +13,7 @@ public:
 	/**
 		Pointer to line just before branching.
 	*/
-	LLine Line;
+	LLine* Line;
 
 	/**
 		Direction at which turtle is facing before branching.
@@ -25,7 +25,7 @@ public:
 		@param pLine Pointer to line just before branching.
 		@param pDirection Vector that holds the direction turtle is facing.
 	*/
-	LLineBranch(LLine pLine, FVector pDirection);
+	LLineBranch(LLine* pLine, FVector pDirection);
 
 	/**
 		Default branching.
